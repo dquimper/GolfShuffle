@@ -6,17 +6,21 @@ class Player
 
   def initialize(name, handicap)
     @name = name
-    @handicap = handicap.to_f
+    @handicap = handicap.gsub(",",".").to_f
   end
 
   def self.load_players(csv_file)
     players = []
     File.open(csv_file) do |f|
-      CSV.parse(f.read).each do |row|
+      CSV.parse(f.read, col_sep: ";").each do |row|
         players << Player.new(row[0], row[1])
       end
     end
     players
+  end
+
+  def print
+    "%-30s  (%.1f)" % [name, handicap]
   end
 end
 
@@ -40,9 +44,9 @@ class Team
   end
 
   def print
-    puts "Capitaine : #{@captain.name}"
+    puts "Capitaine : #{@captain.print}"
     @players.each_with_index do |p, i|
-      puts "Joueur #{i+1}  : #{p.name}"
+      puts "Joueur #{i+1}  : #{p.print}"
     end
     puts "Moyenne : #{mean}"
   end
