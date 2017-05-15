@@ -11,10 +11,15 @@ class Player
 
   def self.load_players(csv_file)
     players = []
-    File.open(csv_file) do |f|
-      CSV.parse(f.read, col_sep: ";").each do |row|
-        players << Player.new(row[0], row[1])
+    begin
+      File.open(csv_file) do |f|
+        CSV.parse(f.read, col_sep: ";").each do |row|
+          players << Player.new(row[0], row[1])
+        end
       end
+    rescue CSV::MalformedCSVError => e
+      $stderr.puts "Problème de chargement de '#{csv_file}'"
+      raise e
     end
     players
   end
@@ -83,8 +88,8 @@ class TeamFormation
 end
 
 
-captains_csv = ARGV[0] || "captains.csv"
-players_csv = ARGV[1] || "players.csv"
+captains_csv = ARGV[0]
+players_csv = ARGV[1]
 
 captains = Player.load_players(captains_csv)
 players = Player.load_players(players_csv)
