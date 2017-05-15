@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # This loads RVM into a shell session.
+
+cd ~/rubymine/GolfShuffle
+ruby game_shuffle.rb | tee games.txt
+read -n1 -r -p "Press any key to continue..." key
