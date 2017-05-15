@@ -83,8 +83,8 @@ class TeamFormation
 end
 
 
-captains_csv = ARGV[0]
-players_csv = ARGV[1]
+captains_csv = ARGV[0] || "captains.csv"
+players_csv = ARGV[1] || "players.csv"
 
 captains = Player.load_players(captains_csv)
 players = Player.load_players(players_csv)
