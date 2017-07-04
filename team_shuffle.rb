@@ -63,6 +63,10 @@ class Team
     @_mean ||= ([@captain] + @players).map(&:handicap).mean
   end
 
+  def sum
+    @_sum ||= ([@captain] + @players).map(&:handicap).inject(0){|sum,x| sum + x }
+  end
+
   def print
     puts "Capitaine : #{@captain.print}"
     @players.sort.each_with_index do |p, i|
@@ -77,6 +81,7 @@ class Team
     @players.sort.each do |p|
       list << p.to_csv
     end
+    list << sum.to_s.gsub(".", ",")
     list << mean.to_s.gsub(".", ",")
     list.flatten
   end
@@ -113,7 +118,7 @@ class TeamFormation
 
   def print_csv
     CSV.open("team_shuffle.csv", "wb", col_sep: ";") do |csv|
-      csv << ["Capitaine 1", "Eval", "Joueur 2", "Eval", "Joueur 3", "Eval", "Joueur 4", "Eval", "Moyenne"]
+      csv << ["Capitaine 1", "Eval", "Joueur 2", "Eval", "Joueur 3", "Eval", "Joueur 4", "Eval", "Somme", "Moyenne"]
       @teams.each_with_index do |t, i|
         csv << t.to_csv
       end
