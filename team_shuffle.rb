@@ -40,7 +40,7 @@ class Player
   end
 
   def to_csv
-    [name, handicap]
+    [name, handicap.to_s.gsub(".", ",")]
   end
 end
 
@@ -77,7 +77,7 @@ class Team
     @players.sort.each do |p|
       list << p.to_csv
     end
-    list << mean
+    list << mean.to_s.gsub(".", ",")
     list.flatten
   end
 end
@@ -117,7 +117,7 @@ class TeamFormation
       @teams.each_with_index do |t, i|
         csv << t.to_csv
       end
-      csv << ["Formation stdevp", stdevp]
+      csv << ["Formation stdevp", stdevp.to_s.gsub(".", ",")]
     end
   end
 end
