@@ -10,22 +10,37 @@ class Player
   end
 
   def self.load_players(csv_file)
+    col_seps = [";", ",", "\t"]
     players = []
-    begin
-      File.open(csv_file) do |f|
-        CSV.parse(f.read, col_sep: ";").each do |row|
-          players << Player.new(row[0], row[1])
+    File.open(csv_file) do |f|
+      csv_data = f.read
+      col_seps.each_with_index do |col_sep, idx|
+        begin
+          CSV.parse(csv_data, col_sep: col_sep).each do |row|
+            players << Player.new(row[0], row[1])
+          end
+          break
+        rescue CSV::MalformedCSVError => e
+          if idx >= col_seps.size - 1
+            $stderr.puts "Problème de chargement de '#{csv_file}'"
+            raise e
+          end
         end
       end
-    rescue CSV::MalformedCSVError => e
-      $stderr.puts "Problème de chargement de '#{csv_file}'"
-      raise e
     end
     players
   end
 
   def print
     "%-30s  (%.1f)" % [name, handicap]
+  end
+
+  def <=>(o)
+    self.handicap <=> o.handicap
+  end
+
+  def to_csv
+    [name, handicap]
   end
 end
 
@@ -50,10 +65,20 @@ class Team
 
   def print
     puts "Capitaine : #{@captain.print}"
-    @players.each_with_index do |p, i|
+    @players.sort.each_with_index do |p, i|
       puts "Joueur #{i+1}  : #{p.print}"
     end
     puts "Moyenne : #{mean}"
+  end
+
+  def to_csv
+    list = []
+    list << captain.to_csv
+    @players.sort.each do |p|
+      list << p.to_csv
+    end
+    list << mean
+    list.flatten
   end
 end
 
@@ -85,6 +110,16 @@ class TeamFormation
     end
     puts "Formation stdevp : #{stdevp}"
   end
+
+  def print_csv
+    CSV.open("team_shuffle.csv", "wb") do |csv|
+      csv << ["Capitaine 1", "Eval", "Joueur 2", "Eval", "Joueur 3", "Eval", "Joueur 4", "Eval", "Moyenne"]
+      @teams.each_with_index do |t, i|
+        csv << t.to_csv
+      end
+      csv << ["Formation stdevp", stdevp]
+    end
+  end
 end
 
 
@@ -104,3 +139,4 @@ best_formation = TeamFormation.new(captains, players)
 end
 
 best_formation.print
+best_formation.print_csv
