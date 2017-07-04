@@ -112,7 +112,7 @@ class TeamFormation
   end
 
   def print_csv
-    CSV.open("team_shuffle.csv", "wb") do |csv|
+    CSV.open("team_shuffle.csv", "wb", col_sep: ";") do |csv|
       csv << ["Capitaine 1", "Eval", "Joueur 2", "Eval", "Joueur 3", "Eval", "Joueur 4", "Eval", "Moyenne"]
       @teams.each_with_index do |t, i|
         csv << t.to_csv
