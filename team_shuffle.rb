@@ -136,7 +136,7 @@ players = Player.load_players(players_csv)
 
 best_formation = TeamFormation.new(captains, players)
 
-1000.times do
+10000.times do
   formation = TeamFormation.new(captains, players)
   if formation.stdevp < best_formation.stdevp
     best_formation = formation
