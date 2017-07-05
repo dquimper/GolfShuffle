@@ -39,8 +39,8 @@ class Player
     self.handicap <=> o.handicap
   end
 
-  def to_csv
-    [name, handicap.to_s.gsub(".", ",")]
+  def to_csv(options)
+    [name, handicap.to_s.gsub(".", options[:digit_sep])]
   end
 end
 
@@ -67,22 +67,22 @@ class Team
     @_sum ||= ([@captain] + @players).map(&:handicap).inject(0){|sum,x| sum + x }
   end
 
-  def print
-    puts "Capitaine : #{@captain.print}"
+  def print_txt(f)
+    f.puts "Capitaine : #{@captain.print}"
     @players.sort.each_with_index do |p, i|
-      puts "Joueur #{i+1}  : #{p.print}"
+      f.puts "Joueur #{i+1}  : #{p.print}"
     end
-    puts "Moyenne : #{mean}"
+    f.puts "Moyenne : #{mean}"
   end
 
-  def to_csv
+  def to_csv(options)
     list = []
-    list << captain.to_csv
+    list << captain.to_csv(options)
     @players.sort.each do |p|
-      list << p.to_csv
+      list << p.to_csv(options)
     end
-    list << sum.to_s.gsub(".", ",")
-    list << mean.to_s.gsub(".", ",")
+    list << sum.to_s.gsub(".", options[:digit_sep])
+    list << mean.to_s.gsub(".", options[:digit_sep])
     list.flatten
   end
 end
@@ -107,23 +107,32 @@ class TeamFormation
     @_stdevp ||= @teams.map(&:mean).stdevp
   end
 
-  def print
-    @teams.each_with_index do |t, i|
-      puts "Équipe #{i+1}"
-      t.print
-      puts ""
+  def print_txt
+    File.open("teams.txt", "w") do |f|
+      @teams.each_with_index do |t, i|
+        f.puts "Équipe #{i+1}"
+        t.print_txt(f)
+        f.puts ""
+      end
+      f.puts "Formation stdevp : #{stdevp}"
     end
-    puts "Formation stdevp : #{stdevp}"
   end
 
-  def print_csv
-    CSV.open("team_shuffle.csv", "wb", col_sep: ";") do |csv|
+  def print_csv(options = {})
+    Hash
+    CSV.open("teams.csv", "wb", options.except(:digit_sep)) do |csv|
       csv << ["Capitaine 1", "Eval", "Joueur 2", "Eval", "Joueur 3", "Eval", "Joueur 4", "Eval", "Somme", "Moyenne"]
       @teams.each_with_index do |t, i|
-        csv << t.to_csv
+        csv << t.to_csv(options)
       end
-      csv << ["Formation stdevp", stdevp.to_s.gsub(".", ",")]
+      csv << ["Formation stdevp", stdevp.to_s.gsub(".", options[:digit_sep])]
     end
+  end
+end
+
+class Hash
+  def except(*keys)
+    self.reject {|k,v| keys.include?(k)}
   end
 end
 
@@ -143,5 +152,8 @@ best_formation = TeamFormation.new(captains, players)
   end
 end
 
-best_formation.print
-best_formation.print_csv
+best_formation.print_txt
+# best_formation.print_csv(col_sep: ",", digit_sep: ".")
+best_formation.print_csv(col_sep: ";", digit_sep: ",")
+
+puts "Les équipes sont dans les fichiers teams.txt et teams.csv"
