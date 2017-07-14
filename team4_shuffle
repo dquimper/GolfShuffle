@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # This loads RVM into a shell session.
+
+cd ~/rubymine/GolfShuffle
+git pull
+ruby team4_shuffle.rb

@@ -48,13 +48,14 @@ class Team
   attr_accessor :captain
   attr_accessor :players
 
-  def initialize(captain)
+  def initialize(captain, team_size)
     @captain = captain
     @players = []
+    @team_size = team_size
   end
 
   def add_player(player)
-    if players.size < 3
+    if players.size < (@team_size - 1)
       players << player
     end
   end
@@ -90,10 +91,11 @@ end
 class TeamFormation
   attr_accessor :teams
 
-  def initialize(captains, players)
+  def initialize(captains, players, team_size)
+    @team_size = team_size
     @teams = []
     captains.each do |cap|
-      @teams << Team.new(cap)
+      @teams << Team.new(cap, @team_size)
     end
     players.each do |p|
       @teams.shuffle.each do |t|
@@ -117,8 +119,14 @@ class TeamFormation
   end
 
   def print_csv
-    CSV.open("team_shuffle.csv", "wb", col_sep: ";") do |csv|
-      csv << ["Capitaine 1", "Eval", "Joueur 2", "Eval", "Joueur 3", "Eval", "Joueur 4", "Eval", "Somme", "Moyenne"]
+    CSV.open("team#{@team_size}_shuffle.csv", "wb", col_sep: ";") do |csv|
+      csv_header = []
+      csv_header << ["Capitaine", "Eval"]
+      (@team_size - 1).times do |i|
+        csv_header << ["Joueur #{i+1}", "Eval"]
+      end
+      csv_header << ["Somme", "Moyenne"]
+      csv << csv_header.flatten
       @teams.each_with_index do |t, i|
         csv << t.to_csv
       end
@@ -127,21 +135,25 @@ class TeamFormation
   end
 end
 
+if $0 == __FILE__
+  captains_csv = ARGV[0] || "captains4.csv"
+  players_csv = ARGV[1] || "players4.csv"
 
-captains_csv = ARGV[0]
-players_csv = ARGV[1]
+  captains = Player.load_players(captains_csv)
+  players = Player.load_players(players_csv)
 
-captains = Player.load_players(captains_csv)
-players = Player.load_players(players_csv)
+  team_size = 4
+  best_formation = TeamFormation.new(captains, players, team_size)
 
-best_formation = TeamFormation.new(captains, players)
-
-10000.times do
-  formation = TeamFormation.new(captains, players)
-  if formation.stdevp < best_formation.stdevp
-    best_formation = formation
+  10000.times do
+    formation = TeamFormation.new(captains, players, team_size)
+    if formation.stdevp < best_formation.stdevp
+      best_formation = formation
+    end
   end
-end
 
-best_formation.print
-best_formation.print_csv
+  best_formation.print
+  best_formation.print_csv
+
+  print "Pressez une touche pour continuer..."; gets
+end
