@@ -2,6 +2,5 @@
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # This loads RVM into a shell session.
 
 cd ~/rubymine/GolfShuffle
-#git pull
-ruby team_shuffle.rb captains2017.csv players2017.csv
-read -n1 -r -p "Pressez une touche pour continuer..." key
+git pull
+ruby team2_shuffle.rb
