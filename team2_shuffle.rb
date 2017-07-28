@@ -19,8 +19,8 @@ if $0 == __FILE__
     end
   end
 
-  best_formation.print
-  best_formation.print_csv
+  best_formation.print_txt
+  best_formation.print_csv(col_sep: ";", digit_sep: ",")
 
   print "Pressez une touche pour continuer..."; gets
 end

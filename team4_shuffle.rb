@@ -110,7 +110,7 @@ class TeamFormation
   end
 
   def print_txt
-    File.open("teams.txt", "w") do |f|
+    File.open("team#{@team_size}_shuffle.txt", "w") do |f|
       @teams.each_with_index do |t, i|
         f.puts "Équipe #{i+1}"
         t.print_txt(f)
@@ -160,11 +160,8 @@ if $0 == __FILE__
     end
   end
 
-best_formation.print_txt
-#best_formation.print_csv(col_sep: ",", digit_sep: ".")
-best_formation.print_csv(col_sep: ";", digit_sep: ",")
-
-puts "Les équipes sont dans les fichiers teams.txt et teams.csv"
+  best_formation.print_txt
+  best_formation.print_csv(col_sep: ";", digit_sep: ",")
 
   print "Pressez une touche pour continuer..."; gets
 end
